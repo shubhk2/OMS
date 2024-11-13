@@ -1,7 +1,6 @@
 from flask import Flask, jsonify
 import time
-import sqlite3
-from sqlitin import get_db_connection
+
 app = Flask(__name__)
 
 

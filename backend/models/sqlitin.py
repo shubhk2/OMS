@@ -1,5 +1,5 @@
 import sqlite3
-conni = sqlite3.connect('office.db')
+conni = sqlite3.connect('../office.db')
 
 # Create a cursor object to interact with the database
 cursor = conni.cursor()
