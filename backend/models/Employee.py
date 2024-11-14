@@ -14,5 +14,7 @@ class Employee:
         employee = conn.execute('SELECT * FROM Employee WHERE id = ?', (employee_id,)).fetchone()
         conn.close()
         return employee
+e=Employee.get_employee_by_id(1)
+print(e['name'],e['role'],e['specialization'],e['primary_team_id'])
 
-    # Add more methods for Employee operations
+
