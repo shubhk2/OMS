@@ -197,12 +197,12 @@ def get_db_connection():
 #     FOREIGN KEY (employee_id) REFERENCES Employee(id)
 # );''')
 #
-cursor.execute('''CREATE TRIGGER IF NOT EXISTS update_task_updated_at
-AFTER UPDATE ON Task
-FOR EACH ROW
-BEGIN
-    UPDATE Task SET updated_at = CURRENT_TIMESTAMP WHERE task_id = OLD.task_id;
-END;''')
+# cursor.execute('''CREATE TRIGGER IF NOT EXISTS update_task_updated_at
+# AFTER UPDATE ON Task
+# FOR EACH ROW
+# BEGIN
+#     UPDATE Task SET updated_at = CURRENT_TIMESTAMP WHERE task_id = OLD.task_id;
+# END;''')
 
 # cursor.execute('''Create TABLE IF NOT EXISTS Salary (
 #     id INTEGER PRIMARY KEY NOT NULL,
@@ -230,10 +230,10 @@ END;''')
 
 # cursor.execute('''create table leave_types(id integer primary key not null,name text,created_at datetime default current_timestamp,updated_at datetime default current_timestamp)''')
 # cursor.execute('''create table leave_requests(id integer primary key,employee_id integer,leave_type_id integer,from_date date,to_date date,reason text,status integer default 0,created_at datetime default current_timestamp,updated_at datetime default current_timestamp,FOREIGN KEY (employee_id) REFERENCES Employee(id),FOREIGN KEY (leave_type_id) REFERENCES leave_types(id))''')
-cursor.execute('''create trigger update_wfh_type_updated_at after update on WFH_type for each row begin update WFH_type set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
-cursor.execute('''create trigger update_leave_type_updated_at after update on Leave_type for each row begin update Leave_type set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
-cursor.execute('''create trigger update_leave_request_updated_at after update on Leave_request for each row begin update Leave_request set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
-cursor.execute('''create trigger update_wfh_request_updated_at after update on WFH_request for each row begin update WFH_request set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
+# cursor.execute('''create trigger update_wfh_type_updated_at after update on WFH_type for each row begin update WFH_type set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
+# cursor.execute('''create trigger update_leave_type_updated_at after update on Leave_type for each row begin update Leave_type set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
+# cursor.execute('''create trigger update_leave_request_updated_at after update on Leave_request for each row begin update Leave_request set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
+# cursor.execute('''create trigger update_wfh_request_updated_at after update on WFH_request for each row begin update WFH_request set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
 # cursor.execute('''create table WFH_requests(id integer primary key,employee_id integer,wfh_type_id integer,from_date date,to_date date,reason text,status integer default 0,created_at datetime default current_timestamp,updated_at datetime default current_timestamp,FOREIGN KEY (employee_id) REFERENCES Employee(id),foreign key (wfh_type_id) references WFH_types(id))''')
 # cursor.execute(''' create table Ot_hr_approval(id integer primary key,employee_id integer,ot_request_id integer,hr_id integer,approved_hours integer,created_at datetime default current_timestamp,updated_at datetime default current_timestamp,foreign key (employee_id) references Employee(id),foreign key (ot_request_id) references Overtime_Requests(id),foreign key (hr_id) references Employee(id))''')
 # cursor.execute(''' create table Leave_hr_approval(id integer primary key,employee_id integer,leave_request_id integer,hr_id integer,created_at datetime default current_timestamp,updated_at datetime default current_timestamp,foreign key (employee_id) references Employee(id),foreign key (leave_request_id) references leave_requests(id),foreign key (hr_id) references Employee(id))''')
@@ -248,11 +248,20 @@ cursor.execute('''create trigger update_wfh_request_updated_at after update on W
 # cursor.execute('''create trigger update_Leave_tl_approval_updated_at after update on Leave_tl_approval for each row begin update Leave_tl_approval set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
 # cursor.execute('''create trigger update_Wfh_tl_approval_updated_at after update on Wfh_tl_approval for each row begin update Wfh_tl_approval set updated_at=CURRENT_TIMESTAMP where id=old.id; end;''')
 # print(cursor.fetchall())
+
+cursor.execute('''INSERT INTO Role (id, name) VALUES 
+(7, 'Team Manager'),
+(8, 'Project Manager'),
+(9, 'Product Manager'),
+(10, 'Scrum Master'),
+(11, 'HR Manager (HRM)'),
+(12, 'HR Director (HRD)'),
+(13, 'Chief Technology Officer (CTO)')''')
+
 conni.commit()
 
-# cursor.execute('PRAGMA table_info("Employee");')
 # print(cursor.fetchall())
-# cursor.execute('PRAGMA table_info("Team");')
+# cursor.execute('PRAGMA table_info("Attendance");')
 # print(cursor.fetchall())
 # cursor.execute('PRAGMA table_info("Project_Team");')
 # print(cursor.fetchall())
@@ -266,7 +275,5 @@ conni.commit()
 # print(cursor.fetchall(),'\n')
 # cursor.execute("PRAGMA table_info('Overtime_Requests');")
 # print(cursor.fetchall())
-# cursor.execute("PRAGMA table_info('Attendance');")
-# print(cursor.fetchall())
-# cursor.execute("PRAGMA table_info('Tasks');")
-# print(cursor.fetchall())
+cursor.execute("PRAGMA table_info('WFH_hr_approval');")
+print(cursor.fetchall())

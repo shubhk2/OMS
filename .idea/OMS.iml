@@ -10,6 +10,8 @@
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (OMS)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="iconify" level="application" />
+    <orderEntry type="library" name="iconify" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
