@@ -9,6 +9,7 @@ from backend.db import get_db_connection
 import time
 import os
 from dotenv import load_dotenv
+import datetime
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,34 +88,99 @@ def profile():
         return jsonify(user)
     return jsonify({"msg": "User not found"}), 404
 
-start_time = None
-
-@app.route('/checkin', methods=['POST'])
+@app.route('/attendance/checkin', methods=['POST'])
 @jwt_required()
 def checkin():
-    global start_time
-    start_time = time.time()
-    return jsonify({"message": "Timer started"}), 200
+    current_user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Check if there is already an open check-in (check_out_time is null)
+        cursor.execute(
+            "SELECT id FROM attendance WHERE employee_id = %s AND check_out_time IS NULL",
+            (current_user_id,)
+        )
+        if cursor.fetchone():
+            return jsonify({"error": "User already checked in"}), 409
 
-@app.route('/checkout', methods=['POST'])
+        cursor.execute(
+            "INSERT INTO attendance (employee_id, check_in_time) VALUES (%s, NOW())",
+            (current_user_id,)
+        )
+        conn.commit()
+        return jsonify({"message": "Checked in successfully"}), 200
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/attendance/checkout', methods=['POST'])
 @jwt_required()
 def checkout():
-    global start_time
-    if start_time is None:
-        return jsonify({"message": "Timer not started"}), 400
-    elapsed_time = time.time() - start_time
-    start_time = None
-    return jsonify({"message": "Timer stopped", "elapsed_time": elapsed_time}), 200
+    current_user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Find the open check-in record
+        cursor.execute(
+            "SELECT id FROM attendance WHERE employee_id = %s AND check_out_time IS NULL ORDER BY check_in_time DESC LIMIT 1",
+            (current_user_id,)
+        )
+        attendance_record = cursor.fetchone()
 
-@app.route('/elapsed', methods=['GET'])
+        if not attendance_record:
+            return jsonify({"error": "No active check-in found"}), 404
+
+        attendance_id = attendance_record['id']
+        cursor.execute(
+            "UPDATE attendance SET check_out_time = NOW() WHERE id = %s",
+            (attendance_id,)
+        )
+        conn.commit()
+        return jsonify({"message": "Checked out successfully"}), 200
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/attendance/elapsed', methods=['GET'])
 @jwt_required()
 def elapsed():
-    if start_time is None:
-        return jsonify({"elapsed_time": "00:00:00"}), 200
-    elapsed_time = time.time() - start_time
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    return jsonify({"elapsed_time": f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"}), 200
+    current_user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT check_in_time FROM attendance WHERE employee_id = %s AND check_out_time IS NULL ORDER BY check_in_time DESC LIMIT 1",
+            (current_user_id,)
+        )
+        record = cursor.fetchone()
+        if record and record['check_in_time']:
+            elapsed_time = datetime.datetime.now(datetime.timezone.utc) - record['check_in_time']
+            hours, rem = divmod(elapsed_time.total_seconds(), 3600)
+            minutes, seconds = divmod(rem, 60)
+            return jsonify({"elapsed_time": f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"}), 200
+        else:
+            return jsonify({"elapsed_time": "00:00:00"}), 200
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/attendance/status', methods=['GET'])
+@jwt_required()
+def attendance_status():
+    current_user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT check_in_time FROM attendance WHERE employee_id = %s AND check_out_time IS NULL ORDER BY check_in_time DESC LIMIT 1",
+            (current_user_id,)
+        )
+        record = cursor.fetchone()
+        is_checked_in = record is not None
+        return jsonify({"is_checked_in": is_checked_in}), 200
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
