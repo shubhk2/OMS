@@ -116,5 +116,60 @@ def elapsed():
     minutes, seconds = divmod(rem, 60)
     return jsonify({"elapsed_time": f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"}), 200
 
+@app.route('/api/latest-checkins', methods=['GET'])
+@jwt_required()
+def latest_checkins():
+    """Get latest checked-in employees for admin dashboard"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Get the 5 most recent check-ins for today
+        cursor.execute("""
+            SELECT e.id, e.name, a.check_in_time, a.date
+            FROM Attendance a
+            JOIN Employee e ON a.employee_id = e.id
+            WHERE a.date = CURRENT_DATE
+            ORDER BY a.check_in_time DESC
+            LIMIT 5
+        """)
+        rows = cursor.fetchall()
+        checkins = []
+        for row in rows:
+            checkin = row_to_dict(row, cursor)
+            checkins.append(checkin)
+        cursor.close()
+        conn.close()
+        return jsonify(checkins), 200
+    except Exception as e:
+        logger.error(f"Error fetching latest check-ins: {e}")
+        return jsonify({"error": "Failed to fetch check-ins"}), 500
+
+@app.route('/api/ongoing-projects', methods=['GET'])
+@jwt_required()
+def ongoing_projects():
+    """Get ongoing projects for admin dashboard"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Get 4 ongoing projects (status = 1 means ongoing)
+        cursor.execute("""
+            SELECT id, name, status, deadline
+            FROM Project
+            WHERE status = 1
+            ORDER BY deadline ASC
+            LIMIT 4
+        """)
+        rows = cursor.fetchall()
+        projects = []
+        for row in rows:
+            project = row_to_dict(row, cursor)
+            projects.append(project)
+        cursor.close()
+        conn.close()
+        return jsonify(projects), 200
+    except Exception as e:
+        logger.error(f"Error fetching ongoing projects: {e}")
+        return jsonify({"error": "Failed to fetch projects"}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
