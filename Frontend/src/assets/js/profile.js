@@ -1,50 +1,5 @@
 // Profile and conditional rendering logic
-(async function() {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-        window.location.href = './authentication-login.html';
-        return;
-    }
-
-    try {
-        // Fetch user profile
-        const response = await fetch('http://127.0.0.1:5000/profile', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.ok) {
-            const user = await response.json();
-            
-            // Update welcome message with first name
-            const firstName = user.name.split(' ')[0];
-            const welcomeText = document.getElementById('welcomeText');
-            if (welcomeText) {
-                welcomeText.textContent = `Welcome, ${firstName}`;
-            }
-
-            // Check if user is admin (role 14)
-            if (user.role === 14) {
-                // Admin view
-                renderAdminDashboard();
-            } else {
-                // Regular employee view - keep existing functionality
-                renderEmployeeDashboard();
-            }
-        } else {
-            // Token might be invalid, redirect to login
-            localStorage.removeItem('accessToken');
-            window.location.href = './authentication-login.html';
-        }
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        localStorage.removeItem('accessToken');
-        window.location.href = './authentication-login.html';
-    }
-})();
+const API_URL = 'http://127.0.0.1:5000';
 
 function renderAdminDashboard() {
     const token = localStorage.getItem('accessToken');
@@ -65,14 +20,17 @@ function renderAdminDashboard() {
         `;
         
         // Fetch and display latest check-ins
-        fetch('http://127.0.0.1:5000/api/latest-checkins', {
+        fetch(`${API_URL}/api/latest-checkins`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw response;
+            return response.json();
+        })
         .then(checkins => {
             const listDiv = document.getElementById('latest-checkins-list');
             if (checkins && checkins.length > 0) {
@@ -113,14 +71,17 @@ function renderAdminDashboard() {
         `;
         
         // Fetch and display ongoing projects
-        fetch('http://127.0.0.1:5000/api/ongoing-projects', {
+        fetch(`${API_URL}/api/ongoing-projects`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw response;
+            return response.json();
+        })
         .then(projects => {
             const listDiv = document.getElementById('ongoing-projects-list');
             if (projects && projects.length > 0) {
@@ -163,3 +124,56 @@ function renderEmployeeDashboard() {
     // This function is here for clarity but doesn't need to do anything
     // as the HTML already has the correct structure
 }
+
+// Load profile, set welcome text and render appropriate dashboard
+async function loadProfileAndRender() {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return; // auth.js should redirect if missing
+
+    try {
+        const res = await fetch(`${API_URL}/profile`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (res.status === 401 || res.status === 422) {
+            // token invalid/expired - let auth.js handle redirect if necessary
+            console.warn('Profile fetch returned auth error', res.status);
+            localStorage.removeItem('accessToken');
+            window.location.href = './authentication-login.html';
+            return;
+        }
+
+        if (!res.ok) {
+            console.error('Failed to fetch profile:', res.status);
+            return;
+        }
+
+        const user = await res.json();
+        const welcomeText = document.getElementById('welcomeText');
+        if (welcomeText && user && user.name) {
+            const firstName = user.name.split(' ')[0];
+            welcomeText.textContent = `Welcome, ${firstName}`;
+        }
+
+        // role-based rendering: role id === 14 is admin
+        if (user && user.role && Number(user.role) === 14) {
+            renderAdminDashboard();
+        } else {
+            renderEmployeeDashboard();
+        }
+
+    } catch (err) {
+        console.error('Error loading profile:', err);
+        // Keep user on page; auth.js will periodically check authentication
+    }
+}
+
+// Run on DOMContentLoaded so elements are available
+document.addEventListener('DOMContentLoaded', () => {
+    loadProfileAndRender();
+});
