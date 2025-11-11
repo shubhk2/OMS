@@ -1,31 +1,103 @@
-from flask import Flask, jsonify
+# python
+# File: `backend/app.py`
+from flask import Flask, jsonify, request
+from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
+from werkzeug.security import check_password_hash
+from datetime import timedelta
+from flask_cors import CORS
+from backend.db import get_db_connection
 import time
+import os
+from dotenv import load_dotenv
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY', 'super-secret')
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
+jwt = JWTManager(app)
 
-class Employee:
-    def __init__(self,id,name,specialization,primary_team_id,role=None):
-        self.name=name
-        self.id=id
-        if role is None:
-            self.role='Employee'
-        else:
-            self.role=role
-        self.specialization=specialization
-        self.primary_team_id=primary_team_id
+def row_to_dict(row, cursor):
+    if row is None:
+        return None
+    if isinstance(row, dict):
+        return row
+    # If cursor has description, map column names to row tuple
+    if hasattr(cursor, 'description') and cursor.description:
+        cols = [desc[0] for desc in cursor.description]
+        return dict(zip(cols, row))
+    return row
 
+@app.route('/login', methods=['POST'])
+def login():
+    # Accept JSON or form data
+    data = request.get_json(silent=True) or request.form
+    username = None
+    if hasattr(data, 'get'):
+        username = data.get('username') or data.get('email') or data.get('user')
+        password = data.get('password')
+    else:
+        username = None
+        password = None
 
+    if not password:
+        return jsonify({"error": "Missing password field in request"}), 400
+    logger.info(f"username: {username}, password provided: {'yes' if password else 'no'}")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM employee WHERE name = %s", (username,))
+    raw = cursor.fetchone()
+    user = row_to_dict(raw, cursor)
+    cursor.close()
+    conn.close()
+
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    stored_password = user.get('password') if isinstance(user, dict) else None
+
+    if stored_password is None:
+        return jsonify({"error": "Account stored password missing — contact administrator"}), 500
+
+    if not check_password_hash(stored_password, password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    access_token = create_access_token(identity=user.get('id'))
+    return jsonify(access_token=access_token)
+
+@app.route('/profile')
+@jwt_required()
+def profile():
+    current_user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name, role, specialization FROM employee WHERE id = %s", (current_user_id,))
+    raw = cursor.fetchone()
+    user = row_to_dict(raw, cursor)
+    cursor.close()
+    conn.close()
+    if user:
+        return jsonify(user)
+    return jsonify({"msg": "User not found"}), 404
 
 start_time = None
 
 @app.route('/checkin', methods=['POST'])
+@jwt_required()
 def checkin():
     global start_time
     start_time = time.time()
     return jsonify({"message": "Timer started"}), 200
 
 @app.route('/checkout', methods=['POST'])
+@jwt_required()
 def checkout():
     global start_time
     if start_time is None:
@@ -35,6 +107,7 @@ def checkout():
     return jsonify({"message": "Timer stopped", "elapsed_time": elapsed_time}), 200
 
 @app.route('/elapsed', methods=['GET'])
+@jwt_required()
 def elapsed():
     if start_time is None:
         return jsonify({"elapsed_time": "00:00:00"}), 200
@@ -43,7 +116,5 @@ def elapsed():
     minutes, seconds = divmod(rem, 60)
     return jsonify({"elapsed_time": f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"}), 200
 
-
-
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
