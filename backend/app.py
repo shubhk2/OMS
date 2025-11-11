@@ -17,12 +17,31 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS to explicitly allow Authorization header to avoid preflight issues
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"], expose_headers=["Authorization"])
 
 # Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY', 'super-secret')
+# Read secret from either JWT_SECRET_KEY (preferred) or JWT_SECRET for backwards compatibility
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY', os.environ.get('JWT_SECRET', 'super-secret'))
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 jwt = JWTManager(app)
+
+# JWT error handlers for better logging and clearer responses
+@jwt.unauthorized_loader
+def custom_unauthorized_response(err_str):
+    logger.warning(f"JWT unauthorized: {err_str}")
+    return jsonify({"msg": "Missing or malformed Authorization header"}), 401
+
+@jwt.invalid_token_loader
+def custom_invalid_token_response(err_str):
+    logger.warning(f"JWT invalid token: {err_str}")
+    return jsonify({"msg": "Invalid token"}), 422
+
+@jwt.expired_token_loader
+def custom_expired_token_response(jwt_header, jwt_payload):
+    logger.warning("JWT expired token")
+    return jsonify({"msg": "Token has expired"}), 401
 
 def row_to_dict(row, cursor):
     if row is None:
@@ -53,7 +72,7 @@ def login():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM employee WHERE name = %s", (username,))
+    cursor.execute("SELECT * FROM   employee WHERE name = %s", (username,))
     raw = cursor.fetchone()
     user = row_to_dict(raw, cursor)
     cursor.close()
@@ -70,13 +89,21 @@ def login():
     if not check_password_hash(stored_password, password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    access_token = create_access_token(identity=user.get('id'))
+    # Create access token with string identity to satisfy PyJWT "Subject must be a string" requirement
+    access_token = create_access_token(identity=str(user.get('id')))
     return jsonify(access_token=access_token)
 
 @app.route('/profile')
 @jwt_required()
 def profile():
-    current_user_id = get_jwt_identity()
+    # JWT identity is stored as a string; convert to int for DB use
+    current_user_identity = get_jwt_identity()
+    try:
+        current_user_id = int(current_user_identity)
+    except (TypeError, ValueError):
+        logger.warning(f"Invalid JWT identity type: {current_user_identity}")
+        return jsonify({"msg": "Invalid token identity"}), 422
+    logger.info(f"/profile accessed by user id: {current_user_id}")
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, name, role, specialization FROM employee WHERE id = %s", (current_user_id,))
@@ -181,6 +208,61 @@ def attendance_status():
     finally:
         cursor.close()
         conn.close()
+
+@app.route('/api/latest-checkins', methods=['GET'])
+@jwt_required()
+def latest_checkins():
+    """Get latest checked-in employees for admin dashboard"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Get the 5 most recent check-ins for today
+        cursor.execute("""
+            SELECT e.id, e.name, a.check_in_time, a.date
+            FROM attendance a
+            JOIN employee e ON a.employee_id = e.id
+            WHERE a.date = CURRENT_DATE
+            ORDER BY a.check_in_time DESC
+            LIMIT 5
+        """)
+        rows = cursor.fetchall()
+        checkins = []
+        for row in rows:
+            checkin = row_to_dict(row, cursor)
+            checkins.append(checkin)
+        cursor.close()
+        conn.close()
+        return jsonify(checkins), 200
+    except Exception as e:
+        logger.error(f"Error fetching latest check-ins: {e}")
+        return jsonify({"error": "Failed to fetch check-ins"}), 500
+
+@app.route('/api/ongoing-projects', methods=['GET'])
+@jwt_required()
+def ongoing_projects():
+    """Get ongoing projects for admin dashboard"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Get 4 ongoing projects (status = 1 means ongoing)
+        cursor.execute("""
+            SELECT id, name, status, deadline
+            FROM project
+            WHERE status = 1
+            ORDER BY deadline ASC
+            LIMIT 4
+        """)
+        rows = cursor.fetchall()
+        projects = []
+        for row in rows:
+            project = row_to_dict(row, cursor)
+            projects.append(project)
+        cursor.close()
+        conn.close()
+        return jsonify(projects), 200
+    except Exception as e:
+        logger.error(f"Error fetching ongoing projects: {e}")
+        return jsonify({"error": "Failed to fetch projects"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
