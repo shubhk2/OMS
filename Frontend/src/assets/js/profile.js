@@ -58,7 +58,7 @@ function renderAdminDashboard() {
                 <div id="latest-checkins-list" class="text-start">
                     <p class="text-muted">Loading...</p>
                 </div>
-                <a href="./admin-attendance.html" class="btn btn-primary btn-sm mt-3">
+                <a href="./ui-forms.html" class="btn btn-primary btn-sm mt-3">
                     View All Attendance <i class="ti ti-arrow-right"></i>
                 </a>
             </div>
@@ -106,7 +106,7 @@ function renderAdminDashboard() {
                 <div id="ongoing-projects-list">
                     <p class="text-muted">Loading...</p>
                 </div>
-                <a href="./admin-projects.html" class="btn btn-primary btn-sm mt-3">
+                <a href="./ui-alerts.html" class="btn btn-primary btn-sm mt-3">
                     View All Projects <i class="ti ti-arrow-right"></i>
                 </a>
             </div>
