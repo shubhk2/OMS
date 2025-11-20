@@ -1,22 +1,35 @@
-
-function handleLogout() {
-    const logoutButton = document.querySelector('#logoutBtn, .logout-btn'); // Use a class for more flexibility
-    if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('accessToken');
-            window.location.href = './authentication-login.html';
-        });
-    }
-}
-
-// Add logout handler on DOM content loaded
-document.addEventListener('DOMContentLoaded', handleLogout);
-// Redirect to index if a logged-in user tries to access the login page.
+// Frontend/src/assets/js/auth.js
 (function() {
-    const onLoginPage = window.location.pathname.endsWith('authentication-login.html');
-    const token = localStorage.getItem('accessToken');
-    if (token && onLoginPage) {
-        window.location.href = './index.html';
+  function handleLogout() {
+    const logoutButton = document.querySelector('#logoutBtn, .logout-btn');
+    if (logoutButton) {
+      logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('accessToken');
+        window.location.href = './authentication-login.html';
+      });
     }
-})();
+  }
 
+  function enforceAuth() {
+    const token = localStorage.getItem('accessToken');
+    const path = window.location.pathname;
+    const onLoginPage = path.endsWith('authentication-login.html') || path.endsWith('/authentication-login.html');
+
+    if (!token && !onLoginPage) {
+      // Not authenticated and not on login page -> send to login
+      window.location.href = './authentication-login.html';
+      return;
+    }
+
+    if (token && onLoginPage) {
+      // Already authenticated and on login page -> send to app
+      window.location.href = './index.html';
+      return;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    handleLogout();
+    enforceAuth();
+  });
+})();

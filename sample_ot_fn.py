@@ -1,5 +1,5 @@
 from sqlitin import get_db_connection
-from Employee import *
+from sample_employee_basic_fn import *
 import time
 class OT:
     def __init__(self,id):

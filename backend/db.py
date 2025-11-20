@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 import psycopg2
-from psycopg2.extras import DictCursor
+from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 
@@ -22,5 +22,5 @@ def get_db_connection():
         else:
             url = url + '?sslmode=require'
 
-    conn = psycopg2.connect(url, cursor_factory=DictCursor)
+    conn = psycopg2.connect(url)
     return conn
