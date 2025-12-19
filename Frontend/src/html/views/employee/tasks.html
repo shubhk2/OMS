@@ -9,12 +9,12 @@
     (function() {
       const token = localStorage.getItem('accessToken');
       if (!token) {
-        window.location.href = './authentication-login.html';
+        window.location.href = '../../authentication-login.html';
       }
     })();
   </script>
-  <link rel="shortcut icon" type="image/png" href="../assets/images/logos/favicon.png" />
-  <link rel="stylesheet" href="../assets/css/styles.min.css" />
+  <link rel="shortcut icon" type="image/png" href="../../../assets/images/logos/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/css/styles.min.css" />
 </head>
 
 <body>
@@ -27,7 +27,7 @@
       <div class="scroll-sidebar" data-simplebar>
         <div class="d-flex mb-4 align-items-center justify-content-between">
             <a href="index.html" class="text-nowrap logo-img ms-0 ms-md-1">
-              <img src="../assets/images/logos/dark-logo.svg" width="180" alt="">
+              <img src="../../../assets/images/logos/dark-logo.svg" width="180" alt="">
             </a>
             <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
               <i class="ti ti-x fs-8"></i>
@@ -54,24 +54,24 @@
             </li>
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-5"></i>
-              <span class="hide-menu">Options</span>
+              <span class="hide-menu">UI Componenst</span>
             </li>
             <li class="sidebar-item">
               <a
                 class="sidebar-link sidebar-link warning-hover-bg"
-                href="./ui-buttons.html"
+                href="./tasks.html"
                 aria-expanded="false"
               >
                 <span class="aside-icon p-2 bg-light-warning rounded-3">
                   <i class="ti ti-article fs-7 text-warning"></i>
                 </span>
-                <span class="hide-menu ms-2 ps-1">Your Task</span>
+                <span class="hide-menu ms-2 ps-1">Your Tasks</span>
               </a>
             </li>
-            <li class="sidebar-item">
+           <li class="sidebar-item">
               <a
                 class="sidebar-link sidebar-link danger-hover-bg"
-                href="./ui-alerts.html"
+                href="./projects.html"
                 aria-expanded="false"
               >
                 <span class="aside-icon p-2 bg-light-danger rounded-3">
@@ -83,19 +83,19 @@
             <li class="sidebar-item">
               <a
                 class="sidebar-link sidebar-link success-hover-bg"
-                href="./ui-card.html"
+                href="./ot-leave-wfh.html"
                 aria-expanded="false"
               >
                 <span class="aside-icon p-2 bg-light-success rounded-3">
                   <i class="ti ti-cards fs-7 text-success"></i>
                 </span>
-                <span class="hide-menu ms-2 ps-1">Leaves/Ot/WFH</span>
+                <span class="hide-menu ms-2 ps-1">Leaves/OT/WFH</span>
               </a>
             </li>
             <li class="sidebar-item">
               <a
                 class="sidebar-link sidebar-link primary-hover-bg"
-                href="./ui-forms.html"
+                href="./attendance.html"
                 aria-expanded="false"
               >
                 <span class="aside-icon p-2 bg-light-primary rounded-3">
@@ -107,7 +107,7 @@
             <li class="sidebar-item">
               <a
                 class="sidebar-link sidebar-link indigo-hover-bg"
-                href="./ui-typography.html"
+                href="./salary.html"
                 aria-expanded="false"
               >
                 <span class="aside-icon p-2 bg-light-indigo rounded-3">
@@ -118,8 +118,6 @@
             </li>
 
           </ul>
-
-
 
         </nav>
         <!-- End Sidebar navigation -->
@@ -151,7 +149,7 @@
               <li class="nav-item dropdown">
                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
                   aria-expanded="false">
-                  <img src="../assets/images/profile/user1.jpg" alt="" width="35" height="35" class="rounded-circle">
+                  <img src="../../../assets/images/profile/user1.jpg" alt="" width="35" height="35" class="rounded-circle">
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
@@ -163,9 +161,11 @@
                       <i class="ti ti-mail fs-6"></i>
                       <p class="mb-0 fs-3">My Account</p>
                     </a>
-
-
-
+                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-list-check fs-6"></i>
+                      <p class="mb-0 fs-3">My Task</p>
+                    </a>
+                    <a href="../../authentication-login.html" class="btn btn-outline-primary mx-3 mt-2 d-block shadow-none">Logout</a>
                   </div>
                 </div>
               </li>
@@ -175,114 +175,63 @@
       </header>
       <!--  Header End -->
       <div class="container-fluid">
-        <div class="row">
-              <div class="col-lg-4 col-sm-6 d-flex align-items-strech">
-                <!-- Yearly Breakup -->
-                <div class="card overflow-hidden">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-10 fw-semibold">Leaves Status-November</h5>
-                    <div class="row align-items-center">
-                      <div class="col-7">
-                        <h4 class="fw-semibold mb-3">6/20</h4>
-                        <div class="d-flex align-items-center mb-2">
-                          <span
-                            class="me-1 rounded-circle bg-light-success round-20 d-flex align-items-center justify-content-center">
-                            <i class="ti ti-arrow-up-left text-success"></i>
-                          </span>
-                          <p class="text-dark me-1 fs-3 mb-0">+9%</p>
-                          <p class="fs-3 mb-0">last month</p>
-                        </div>
-                        <div class="d-flex align-items-center">
-                          <div class="me-3">
-                            <span class="round-8 bg-primary rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-2">Paid</span>
-                          </div>
-                          <div>
-                            <span class="round-8 bg-danger rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-2">Unpaid</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-5">
-                        <div class="d-flex justify-content-center">
-                          <div id="leave"></div>
-                        </div>
-                      </div>
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <h5 class="card-title fw-semibold mb-4">Card</h5>
+                  <div class="card">
+                    <img src="../../../assets/images/products/s4.jpg" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title">Card title</h5>
+                      <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                        the
+                        card's content.</p>
+                      <a href="#" class="btn btn-primary">Go somewhere</a>
                     </div>
                   </div>
                 </div>
-              </div>
-             <div class="col-lg-4 col-sm-6 d-flex align-items-strech">
-                <!-- Yearly Breakup -->
-                <div class="card overflow-hidden">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-10 fw-semibold">WFH Status-November</h5>
-                    <div class="row align-items-center">
-                      <div class="col-7">
-                        <h4 class="fw-semibold mb-3">1/20</h4>
-                        <div class="d-flex align-items-center mb-2">
-                          <span
-                            class="me-1 rounded-circle bg-light-success round-20 d-flex align-items-center justify-content-center">
-                            <i class="ti ti-arrow-up-left text-success"></i>
-                          </span>
-                          <p class="text-dark me-1 fs-3 mb-0">+9%</p>
-                          <p class="fs-3 mb-0">last month</p>
-                        </div>
-                        <div class="d-flex align-items-center">
-                          <div class="me-3">
-                            <span class="round-8 bg-primary rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-2">Approved</span>
-                          </div>
-                          <div>
-                            <span class="round-8 bg-danger rounded-circle me-2 d-inline-block"></span>
-                            <span class="fs-2">Forced</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-5">
-                        <div class="d-flex justify-content-center">
-                          <div id="grade"></div>
-                        </div>
-                      </div>
+                <div class="col-md-4">
+                  <h5 class="card-title fw-semibold mb-4">Header and footer</h5>
+                  <div class="card">
+                    <div class="card-header">
+                      Featured
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">Special title treatment</h5>
+                      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <h5 class="card-title fw-semibold mb-4">Titles, text, and links</h5>
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">Card title</h5>
+                      <h6 class="mb-2 text-muted">Card subtitle</h6>
+                      <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                        the
+                        card's content.</p>
+                      <a href="#" class="card-link">Card link</a>
+                      <a href="#" class="card-link">Another link</a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title fw-semibold mb-4">Forms</h5>
-              <div class="card">
-                <div class="card-body">
-                  <form>
-                    <div class="mb-3">
-                      <label for="exampleInputEmail1" class="form-label">DATE/TIME</label>
-                      <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                      <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-                    </div>
-                    <div class="mb-3">
-                      <label for="exampleInputPassword1" class="form-label">Password</label>
-                      <input type="password" class="form-control" id="exampleInputPassword1">
-                    </div>
-                    <div class="mb-3 form-check">
-                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                      <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                  </form>
-                </div>
-              </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  </div>
-  <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
-  <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../assets/js/sidebarmenu.js"></script>
-  <script src="../assets/js/app.min.js"></script>
-  <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
-  <script src="../assets/js/auth.js"></script>
+  <script src="../../../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../assets/js/sidebarmenu.js"></script>
+  <script src="../../../assets/js/app.min.js"></script>
+  <script src="../../../assets/libs/simplebar/dist/simplebar.js"></script>
+  <script src="../../../assets/js/auth.js"></script>
 </body>
 
 </html>

@@ -39,5 +39,23 @@ def attendance_status():
     current_user_id = int(get_jwt_identity())
     body, status = attendance_service.is_checked_in(current_user_id)
     return body, status
-# Routes package
 
+
+@bp.route('/break', methods=['POST'])
+@jwt_required()
+@bp.doc(security='BearerAuth')
+def break_toggle():
+    current_user_id = int(get_jwt_identity())
+    body, status = attendance_service.break_toggle(current_user_id)
+    return body, status
+
+
+@bp.route('/is_on_break', methods=['GET'])
+@jwt_required()
+@bp.doc(security='BearerAuth')
+def is_on_break():
+    current_user_id = int(get_jwt_identity())
+    body, status = attendance_service.is_on_break(current_user_id)
+    return body, status
+
+# Routes package

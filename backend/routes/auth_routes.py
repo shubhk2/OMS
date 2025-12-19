@@ -21,5 +21,5 @@ def login(json_data):
         return {"error": "Invalid credentials"}, 401
 
     access_token = create_access_token(identity=str(user.get('id')))
-    return jsonify(access_token=access_token)
-
+    # return role id too (frontend uses it for routing)
+    return jsonify(access_token=access_token, role=user.get('role'))

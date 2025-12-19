@@ -55,38 +55,10 @@
   </div>
   <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const errorMessage = document.getElementById('error-message');
-
-      try {
-        const response = await fetch('http://127.0.0.1:5000/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem('accessToken', data.access_token);
-          window.location.href = './index.html';
-        } else {
-          const errorData = await response.json();
-          errorMessage.textContent = errorData.msg || 'Login failed. Please check your credentials.';
-          errorMessage.style.display = 'block';
-        }
-      } catch (error) {
-        errorMessage.textContent = 'An error occurred. Please try again later.';
-        errorMessage.style.display = 'block';
-      }
-    });
-  </script>
+  <!-- Shared auth helpers (role-aware routing + base-path handling) -->
+  <script src="../assets/js/auth.js"></script>
+  <!-- Login form handler -->
+  <script src="../assets/js/login.js"></script>
 </body>
 
 </html>

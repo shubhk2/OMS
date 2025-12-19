@@ -11,8 +11,8 @@ class WFHRequest(db.Model):
     to_date = db.Column(db.Date)
     reason = db.Column(db.Text)
     status = db.Column(db.Integer, default=0)  # 0=pending, 1=approved, 2=rejected
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     def to_dict(self):
         return {

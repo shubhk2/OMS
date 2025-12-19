@@ -7,11 +7,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let timerInterval;
 
     if (!token) {
-        window.location.href = './authentication-login.html';
+        // Prefer shared auth routing (handles PyCharm base path)
+        if (window.omsAuth && typeof window.omsAuth.makeLoginPath === 'function') {
+            window.location.href = window.omsAuth.makeLoginPath();
+        } else {
+            // fallback relative to views/employee/*
+            window.location.href = '../../authentication-login.html';
+        }
         return;
     }
 
     const API_URL = 'http://127.0.0.1:5000';
+    let _localSeconds = 0;
 
     function fetchProfile() {
         fetch(`${API_URL}/profile`, {
@@ -21,60 +28,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.name) {
+            if (data.name && welcomeText) {
                 const firstName = data.name.split(' ')[0];
                 welcomeText.textContent = `Welcome, ${firstName}`;
             }
-            if (data.role === 14) {
-                setupAdminDashboard();
-            } else {
-                setupEmployeeDashboard();
-            }
+            // Only employee dashboard logic remains here. If admin UI is needed,
+            // it will be implemented in views/admin with its own scripts.
+            setupEmployeeDashboard();
         })
         .catch(error => console.error('Error fetching profile:', error));
     }
 
-    function setupAdminDashboard() {
-        const profitElement = document.getElementById('profit');
-        profitElement.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center w-100 mb-3">
-                <h5 class="card-title fw-semibold">Latest Check-ins</h5>
-                <a href="/admin/attendance" class="arrow-link"><i class="ti ti-arrow-right"></i></a>
-            </div>
-            <ul class="list-group w-100">
-                <!-- Employee data will be dynamically inserted here -->
-            </ul>
-        `;
-
-        const primaryTeamCard = document.querySelector('.col-lg-8 .card .card-body');
-        if (primaryTeamCard) {
-            const primaryTeamTitle = primaryTeamCard.querySelector('h5');
-            if (primaryTeamTitle && primaryTeamTitle.textContent.includes('Primary Team')) {
-                primaryTeamTitle.textContent = 'Explore Projects';
-                const dropdown = primaryTeamCard.querySelector('.dropdown');
-                if(dropdown) dropdown.remove();
-                const table = primaryTeamCard.querySelector('.table-responsive');
-                // Replace table with project list
-                if(table) {
-                    table.innerHTML = `
-                        <div class="list-group">
-                            <a href="/admin/projects/1" class="list-group-item list-group-item-action">Project Alpha</a>
-                            <a href="/admin/projects/2" class="list-group-item list-group-item-action">Project Beta</a>
-                            <a href="/admin/projects/3" class="list-group-item list-group-item-action">Project Gamma</a>
-                            <a href="/admin/projects/4" class="list-group-item list-group-item-action">Project Theta</a>
-                        </div>
-                        <div class="text-end mt-2">
-                            <a href="/admin/projects" class="arrow-link"><i class="ti ti-arrow-right"></i></a>
-                        </div>
-                    `;
-                }
-            }
-        }
-    }
-
     function setupEmployeeDashboard() {
         fetchAttendanceStatus();
-        checkInOutBtn.addEventListener('click', handleCheckInOut);
+        if (checkInOutBtn) checkInOutBtn.addEventListener('click', handleCheckInOut);
+        if (breakBtn) breakBtn.addEventListener('click', handleBreakToggle);
     }
 
     function fetchAttendanceStatus() {
@@ -85,7 +53,27 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             updateUI(data.is_checked_in);
             if (data.is_checked_in) {
-                startTimer();
+                // check if currently on break
+                fetch(`${API_URL}/attendance/is_on_break`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(r => r.json())
+                .then(b => {
+                    // fetch elapsed once to set local clock
+                    fetch(`${API_URL}/attendance/elapsed`, { headers: { 'Authorization': `Bearer ${token}` } })
+                    .then(r2 => r2.json())
+                    .then(d => {
+                        let parts = (d.elapsed_time || '00:00:00').split(':');
+                        _localSeconds = (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]);
+                        if (b.on_break) {
+                            // on break, do not start timer (clock remains static at elapsed_time)
+                            stopTimer();
+                        } else {
+                            startTimer();
+                        }
+                    });
+                });
+            } else {
+                // not checked in - set clock to placeholder
+                if (digitalClock) digitalClock.textContent = '--:--:--';
             }
         })
         .catch(error => console.error('Error fetching attendance status:', error));
@@ -109,7 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.message) {
                 updateUI(true);
-                startTimer();
+                // sync elapsed and start timer
+                fetch(`${API_URL}/attendance/elapsed`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(r => r.json()).then(d => {
+                    let parts = (d.elapsed_time || '00:00:00').split(':');
+                    _localSeconds = (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]);
+                    startTimer();
+                }).catch(err => { _localSeconds = 0; startTimer(); });
             } else {
                 console.error('Check-in failed:', data.error);
             }
@@ -127,12 +121,35 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.message) {
                 updateUI(false);
                 stopTimer();
-                digitalClock.textContent = "00:00:00";
+                _localSeconds = 0;
+                digitalClock.textContent = '--:--:--';
             } else {
                 console.error('Check-out failed:', data.error);
             }
         })
         .catch(error => console.error('Error during check-out:', error));
+    }
+
+    function handleBreakToggle() {
+        fetch(`${API_URL}/attendance/break`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                if (data.message.toLowerCase().includes('started')) {
+                    // on break, stop local increment (leave elapsed_time as-is)
+                    stopTimer();
+                } else if (data.message.toLowerCase().includes('ended')) {
+                    // on break ended, resume local timer
+                    startTimer();
+                }
+            } else {
+                console.error('Break toggle failed:', data.error);
+            }
+        })
+        .catch(err => console.error('Error toggling break:', err));
     }
 
     function updateUI(isCheckedIn) {
@@ -151,26 +168,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function startTimer() {
         if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(updateClock, 1000);
+        timerInterval = setInterval(() => {
+            _localSeconds = (_localSeconds || 0) + 1;
+            const h = Math.floor(_localSeconds / 3600);
+            const m = Math.floor((_localSeconds % 3600) / 60);
+            const s = _localSeconds % 60;
+            digitalClock.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }, 1000);
     }
 
     function stopTimer() {
-        clearInterval(timerInterval);
-    }
-
-    function updateClock() {
-        fetch(`${API_URL}/attendance/elapsed`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.elapsed_time) {
-                digitalClock.textContent = data.elapsed_time;
-            }
-        })
-        .catch(error => console.error('Error fetching elapsed time:', error));
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
     }
 
     fetchProfile();
 });
-
