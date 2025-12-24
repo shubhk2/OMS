@@ -11,6 +11,17 @@ function getAuthHeaders() {
   };
 }
 
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
 function showAlert(message, type = 'success') {
   const container = document.getElementById('alert-container');
   const alert = document.createElement('div');
@@ -76,12 +87,12 @@ async function loadCompanySettings() {
     
     container.innerHTML = settings.map(setting => `
       <div class="form-group">
-        <label>${setting.description || setting.key}</label>
+        <label>${escapeHtml(setting.description || setting.key)}</label>
         <div style="display: flex; gap: 10px;">
-          <input type="text" id="setting-${setting.id}" value="${setting.value}" style="flex: 1;">
+          <input type="text" id="setting-${setting.id}" value="${escapeHtml(setting.value)}" style="flex: 1;">
           <button class="btn btn-primary" onclick="updateSetting(${setting.id})">Update</button>
         </div>
-        <small style="color: #666;">Key: ${setting.key}</small>
+        <small style="color: #666;">Key: ${escapeHtml(setting.key)}</small>
       </div>
     `).join('');
   } catch (error) {
@@ -126,7 +137,7 @@ async function loadRoles() {
     
     container.innerHTML = roles.map(role => `
       <li class="list-group-item">
-        <span>${role.name} (ID: ${role.id})</span>
+        <span>${escapeHtml(role.name)} (ID: ${role.id})</span>
         <div>
           <button class="btn btn-danger" onclick="deleteRole(${role.id})">Delete</button>
         </div>
@@ -203,7 +214,7 @@ async function loadSpecializations() {
     
     container.innerHTML = specs.map(spec => `
       <li class="list-group-item">
-        <span>${spec.name} (ID: ${spec.id})</span>
+        <span>${escapeHtml(spec.name)} (ID: ${spec.id})</span>
         <div>
           <button class="btn btn-danger" onclick="deleteSpecialization(${spec.id})">Delete</button>
         </div>
@@ -280,7 +291,7 @@ async function loadLeaveTypes() {
     
     container.innerHTML = leaveTypes.map(lt => `
       <li class="list-group-item">
-        <span>${lt.name} (ID: ${lt.id})</span>
+        <span>${escapeHtml(lt.name)} (ID: ${lt.id})</span>
         <div>
           <button class="btn btn-danger" onclick="deleteLeaveType(${lt.id})">Delete</button>
         </div>
@@ -371,10 +382,10 @@ async function loadEmployees() {
           ${employees.map(emp => `
             <tr>
               <td style="padding: 10px; border: 1px solid #ddd;">${emp.id}</td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${emp.name}</td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${emp.username}</td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${emp.email}</td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${emp.curr_salary ? '$' + emp.curr_salary : 'N/A'}</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(emp.name)}</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(emp.username)}</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${escapeHtml(emp.email)}</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${emp.curr_salary ? '$' + escapeHtml(emp.curr_salary.toString()) : 'N/A'}</td>
               <td style="padding: 10px; border: 1px solid #ddd;">${emp.status === 1 ? 'Active' : 'Inactive'}</td>
             </tr>
           `).join('')}
