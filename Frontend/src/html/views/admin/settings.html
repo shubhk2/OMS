@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Settings</title>
+  <link rel="stylesheet" href="../../assets/css/styles.min.css" />
+  <style>
+    .settings-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .settings-section h3 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    .list-group {
+      list-style: none;
+      padding: 0;
+    }
+    .list-group-item {
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      background: white;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ddd;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 3px solid transparent;
+    }
+    .tab.active {
+      border-bottom-color: #007bff;
+      color: #007bff;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .alert {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <main class="container-fluid px-4 py-4">
+      <h2>Admin Settings</h2>
+      
+      <div id="alert-container"></div>
+      
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('company-settings')">Company Settings</button>
+        <button class="tab" onclick="switchTab('roles')">Roles</button>
+        <button class="tab" onclick="switchTab('specializations')">Specializations</button>
+        <button class="tab" onclick="switchTab('leave-types')">Leave Types</button>
+        <button class="tab" onclick="switchTab('employees')">Employees</button>
+      </div>
+      
+      <!-- Company Settings Tab -->
+      <div id="company-settings" class="tab-content active">
+        <div class="settings-section">
+          <h3>Company Configuration</h3>
+          <div id="company-settings-list"></div>
+          <button class="btn btn-primary" onclick="loadCompanySettings()">Refresh</button>
+        </div>
+      </div>
+      
+      <!-- Roles Tab -->
+      <div id="roles" class="tab-content">
+        <div class="settings-section">
+          <h3>Manage Roles</h3>
+          <div class="form-group">
+            <label>Add New Role</label>
+            <input type="text" id="new-role-name" placeholder="Role name">
+            <button class="btn btn-success" onclick="addRole()">Add Role</button>
+          </div>
+          <ul id="roles-list" class="list-group"></ul>
+        </div>
+      </div>
+      
+      <!-- Specializations Tab -->
+      <div id="specializations" class="tab-content">
+        <div class="settings-section">
+          <h3>Manage Specializations</h3>
+          <div class="form-group">
+            <label>Add New Specialization</label>
+            <input type="text" id="new-spec-name" placeholder="Specialization name">
+            <button class="btn btn-success" onclick="addSpecialization()">Add Specialization</button>
+          </div>
+          <ul id="specs-list" class="list-group"></ul>
+        </div>
+      </div>
+      
+      <!-- Leave Types Tab -->
+      <div id="leave-types" class="tab-content">
+        <div class="settings-section">
+          <h3>Manage Leave Types</h3>
+          <div class="form-group">
+            <label>Add New Leave Type</label>
+            <input type="text" id="new-leave-type-name" placeholder="Leave type name">
+            <button class="btn btn-success" onclick="addLeaveType()">Add Leave Type</button>
+          </div>
+          <ul id="leave-types-list" class="list-group"></ul>
+        </div>
+      </div>
+      
+      <!-- Employees Tab -->
+      <div id="employees" class="tab-content">
+        <div class="settings-section">
+          <h3>Add New Employee</h3>
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="emp-name" required>
+          </div>
+          <div class="form-group">
+            <label>Username *</label>
+            <input type="text" id="emp-username" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="emp-email" required>
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="emp-password" required>
+          </div>
+          <div class="form-group">
+            <label>Current Salary * (Required)</label>
+            <input type="number" id="emp-salary" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Role ID</label>
+            <input type="number" id="emp-role" value="1">
+          </div>
+          <div class="form-group">
+            <label>Specialization ID</label>
+            <input type="number" id="emp-specialization">
+          </div>
+          <div class="form-group">
+            <label>Team ID</label>
+            <input type="number" id="emp-team" value="1">
+          </div>
+          <button class="btn btn-success" onclick="addEmployee()">Add Employee</button>
+        </div>
+        
+        <div class="settings-section">
+          <h3>All Employees</h3>
+          <button class="btn btn-primary" onclick="loadEmployees()">Refresh List</button>
+          <div id="employees-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/admin-settings.js"></script>
+</body>
+</html>

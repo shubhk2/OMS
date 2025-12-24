@@ -1,7 +1,12 @@
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from backend.models.employee import Employee
 from logging import getLogger
 logger = getLogger(__name__)
+
+
+def hash_password(password: str) -> str:
+    """Hash a password for storing."""
+    return generate_password_hash(password)
 
 
 def authenticate_user(username: str, password: str):
