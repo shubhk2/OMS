@@ -63,12 +63,14 @@ from backend.routes.employee_routes import bp as employee_bp
 from backend.routes.attendance_routes import bp as attendance_bp
 from backend.routes.ot_routes import bp as ot_bp
 from backend.routes.requests_routes import requests_bp
+from backend.routes.admin_routes import bp as admin_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(attendance_bp)
 app.register_blueprint(ot_bp)
 app.register_blueprint(requests_bp)
+app.register_blueprint(admin_bp)
 
 
 @app.route('/profile')
