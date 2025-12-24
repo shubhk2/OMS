@@ -16,7 +16,7 @@ class Employee(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     email = db.Column(db.String(25), default='shubhk2004@gmail.com')
     password = db.Column(db.String(255))
-    curr_salary = db.Column(db.Numeric(10, 2), nullable=False)
+    curr_salary = db.Column(db.Numeric(10, 2), nullable=True)
     
     def to_dict(self):
         """Convert model to dictionary"""
