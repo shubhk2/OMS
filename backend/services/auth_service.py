@@ -6,7 +6,7 @@ logger = getLogger(__name__)
 
 def authenticate_user(username: str, password: str):
     """Return user dict if credentials are valid, else None."""
-    # Try to find user by name or username
+    # Try to find user by name or usernamegene
     user = Employee.query.filter(
         (Employee.username == username)
     ).first()

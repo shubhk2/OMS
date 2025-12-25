@@ -32,9 +32,9 @@ jwt = JWTManager(app)
 
 # Setup SQLAlchemy
 postgres_url = os.environ.get('POSTGRES_URL')
-if postgres_url and not postgres_url.startswith('postgresql://'):
-    # Handle postgres:// -> postgresql:// for SQLAlchemy
-    postgres_url = postgres_url.replace('postgres://', 'postgresql://', 1)
+# if postgres_url and not postgres_url.startswith('postgresql://'):
+#     # Handle postgres:// -> postgresql:// for SQLAlchemy
+#     postgres_url = postgres_url.replace('postgres://', 'postgresql://', 1)
 if postgres_url and 'sslmode=' not in postgres_url:
     postgres_url += '&sslmode=require' if '?' in postgres_url else '?sslmode=require'
 
@@ -63,12 +63,14 @@ from backend.routes.employee_routes import bp as employee_bp
 from backend.routes.attendance_routes import bp as attendance_bp
 from backend.routes.ot_routes import bp as ot_bp
 from backend.routes.requests_routes import requests_bp
+from backend.routes.admin_routes import bp as admin_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(attendance_bp)
 app.register_blueprint(ot_bp)
 app.register_blueprint(requests_bp)
+app.register_blueprint(admin_bp)
 
 
 @app.route('/profile')

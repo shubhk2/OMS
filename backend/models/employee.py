@@ -5,7 +5,7 @@ from datetime import datetime
 class Employee(db.Model):
     __tablename__ = 'employee'
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(30))
     username = db.Column(db.String(30))
     role = db.Column(db.Integer, db.ForeignKey('role.id'), default=1)
@@ -16,6 +16,7 @@ class Employee(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     email = db.Column(db.String(25), default='shubhk2004@gmail.com')
     password = db.Column(db.String(255))
+    curr_salary = db.Column(db.Float, default=0.0)
     
     def to_dict(self):
         """Convert model to dictionary"""

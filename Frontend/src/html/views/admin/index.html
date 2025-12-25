@@ -4,18 +4,265 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="../../assets/css/styles.min.css" />
+  <link rel="shortcut icon" type="image/png" href="../../../assets/images/logos/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/css/styles.min.css" />
 </head>
+
 <body>
-  <div class="page-wrapper">
-    <main class="container-fluid px-4 py-4">
-      <h2>Admin Dashboard</h2>
-      <div id="admin-dashboard-content">
-        <!-- Admin widgets (latest checkins, explore projects, quick links) -->
+<div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+     data-sidebar-position="fixed" data-header-position="fixed">
+
+  <!-- Sidebar Start (Admin) -->
+  <aside class="left-sidebar">
+    <div class="scroll-sidebar" data-simplebar>
+      <div class="d-flex mb-4 align-items-center justify-content-between">
+        <a href="./index.html" class="text-nowrap logo-img ms-0 ms-md-1">
+          <img src="../../../assets/images/logos/dark-logo.svg" width="180" alt="">
+        </a>
+        <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+          <i class="ti ti-x fs-8"></i>
+        </div>
       </div>
-    </main>
+
+      <nav class="sidebar-nav">
+        <ul id="sidebarnav" class="mb-4 pb-2">
+          <li class="nav-small-cap"><i class="ti ti-dots nav-small-cap-icon fs-5"></i><span class="hide-menu">Admin</span></li>
+
+          <li class="sidebar-item"><a class="sidebar-link primary-hover-bg" href="./index.html"><span class="aside-icon p-2 bg-light-primary rounded-3"><i class="ti ti-layout-dashboard fs-7 text-primary"></i></span><span class="hide-menu ms-2 ps-1">Dashboard</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link warning-hover-bg" href="./attendance.html"><span class="aside-icon p-2 bg-light-warning rounded-3"><i class="ti ti-timeline fs-7 text-warning"></i></span><span class="hide-menu ms-2 ps-1">Attendance</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link success-hover-bg" href="./employees.html"><span class="aside-icon p-2 bg-light-success rounded-3"><i class="ti ti-users fs-7 text-success"></i></span><span class="hide-menu ms-2 ps-1">Employees</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link danger-hover-bg" href="./teams.html"><span class="aside-icon p-2 bg-light-danger rounded-3"><i class="ti ti-users-group fs-7 text-danger"></i></span><span class="hide-menu ms-2 ps-1">Teams</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link primary-hover-bg" href="./ot-leave-wfh.html"><span class="aside-icon p-2 bg-light-primary rounded-3"><i class="ti ti-clipboard-check fs-7 text-primary"></i></span><span class="hide-menu ms-2 ps-1">OT / Leave / WFH</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link warning-hover-bg" href="./projects.html"><span class="aside-icon p-2 bg-light-warning rounded-3"><i class="ti ti-briefcase fs-7 text-warning"></i></span><span class="hide-menu ms-2 ps-1">Projects</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link success-hover-bg" href="./salary.html"><span class="aside-icon p-2 bg-light-success rounded-3"><i class="ti ti-currency-rupee fs-7 text-success"></i></span><span class="hide-menu ms-2 ps-1">Salary</span></a></li>
+          <li class="sidebar-item"><a class="sidebar-link danger-hover-bg" href="./tasks.html"><span class="aside-icon p-2 bg-light-danger rounded-3"><i class="ti ti-list-details fs-7 text-danger"></i></span><span class="hide-menu ms-2 ps-1">Tasks</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+  <!-- Sidebar End -->
+
+  <div class="body-wrapper">
+    <!-- Header (Admin info, date, notifications) -->
+    <header class="app-header">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <ul class="navbar-nav">
+          <li class="nav-item d-block d-xl-none">
+            <a class="nav-link sidebartoggler" id="headerCollapse" href="javascript:void(0)">
+              <i class="ti ti-menu-2"></i>
+            </a>
+          </li>
+        </ul>
+
+        <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+          <div class="d-flex align-items-center gap-3">
+            <div class="text-muted" id="adminDate">--</div>
+            <button class="btn btn-outline-primary" id="logoutBtn">Logout</button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- LEFT: Management Actions -->
+        <div class="col-lg-7">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">Organization Management</h5>
+              </div>
+              <p class="text-muted mt-2 mb-4">Employees can log in only after being added by Admin.</p>
+
+              <div class="row">
+                <!-- Add Employee Card -->
+                <div class="col-md-6">
+                  <div class="card border">
+                    <div class="card-body">
+                      <h6 class="mb-3">Add Employee</h6>
+                      <div class="mb-2">
+                        <label class="form-label">Name</label>
+                        <input id="newEmpName" class="form-control" placeholder="Full name" />
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">Username</label>
+                        <input id="newEmpUsername" class="form-control" placeholder="Unique username" />
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">Email</label>
+                        <input id="newEmpEmail" class="form-control" placeholder="Email" />
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">Role</label>
+                        <select id="newEmpRole" class="form-select">
+                          <option value="1">Employee</option>
+                          <option value="8">Team Leader</option>
+                          <option value="11">HR</option>
+                          <option value="12">HR</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Initial team assignment (optional)</label>
+                        <select id="newEmpTeam" class="form-select">
+                          <option value="">Select...</option>
+                        </select>
+                      </div>
+                      <button class="btn btn-primary w-100" id="btnCreateEmployee">Add New Employee</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Team & Role Assignment Card -->
+                <div class="col-md-6">
+                  <div class="card border">
+                    <div class="card-body">
+                      <h6 class="mb-3">Team & Role Assignment</h6>
+
+                      <div class="mb-4">
+                        <h6 class="text-muted">Team Management</h6>
+                        <div class="mb-2">
+                          <label class="form-label">Team name</label>
+                          <input id="newTeamName" class="form-control" placeholder="Team name" />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Select Team Leader (mandatory)</label>
+                          <select id="newTeamLeaderSelect" class="form-select">
+                            <option value="">Select...</option>
+                          </select>
+                        </div>
+                        <button class="btn btn-outline-primary w-100" id="btnCreateTeam">Create New Team</button>
+                      </div>
+
+                      <div>
+                        <h6 class="text-muted">Role Assignment</h6>
+                        <div class="mb-2">
+                          <label class="form-label">Select employee</label>
+                          <select id="assignEmployeeSelect" class="form-select">
+                            <option value="">Select...</option>
+                          </select>
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label">Assign role</label>
+                          <select id="assignRoleSelect" class="form-select">
+                            <option value="">No change</option>
+                            <option value="1">Employee</option>
+                            <option value="8">Team Leader</option>
+                            <option value="11">HR</option>
+                            <option value="12">HR</option>
+                          </select>
+                        </div>
+                        <div class="mb-2">
+                          <label class="form-label">Assign or change team</label>
+                          <select id="assignTeamSelect" class="form-select">
+                            <option value="">No change</option>
+                          </select>
+                        </div>
+                        <p class="text-muted small mb-2">Info: An employee can work on multiple projects but has one primary Team Leader.</p>
+                        <button class="btn btn-outline-success w-100" id="btnAssignRole">Save Assignment</button>
+                      </div>
+
+                      <hr />
+                      <a class="btn btn-link p-0" href="./employees.html">View All Employees →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Live Data -->
+        <div class="col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">Today’s Attendance Overview</h5>
+                <a class="btn btn-sm btn-outline-primary" href="./attendance.html">Go to Attendance Management →</a>
+              </div>
+
+              <div class="d-flex gap-2 mt-3 flex-wrap">
+                <span class="badge bg-primary">Checked-In: <span id="checkedInIndicator">0 / 0</span></span>
+                <span class="badge bg-success">On Leave Today: <span id="onLeaveIndicator">0</span></span>
+                <span class="badge bg-info">On WFH Today: <span id="onWfhIndicator">0</span></span>
+              </div>
+
+              <div class="table-responsive mt-3">
+                <table class="table align-middle">
+                  <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Team</th>
+                    <th>Check-In</th>
+                    <th>Status</th>
+                  </tr>
+                  </thead>
+                  <tbody id="lastCheckinsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Alerts & Pending Actions</h5>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">Pending OT approvals <span class="badge bg-warning" id="alertPendingOT">0</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Pending leave requests <span class="badge bg-warning" id="alertPendingLeaves">0</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Employees with missed check-out <span class="badge bg-danger" id="alertMissedCheckout">0</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Teams without assigned leader <span class="badge bg-danger" id="alertTeamsNoLeader">0</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Quick Stats -->
+      <div class="row">
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted">Total Employees</h6>
+              <h3 class="mb-0" id="statTotalEmployees">0</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted">Active Teams</h6>
+              <h3 class="mb-0" id="statActiveTeams">0</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted">Team Leaders</h6>
+              <h3 class="mb-0" id="statTeamLeaders">0</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted">HR Members</h6>
+              <h3 class="mb-0" id="statHrMembers">0</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <script src="../../assets/js/auth.js"></script>
+</div>
+
+<script src="../../../assets/libs/jquery/dist/jquery.min.js"></script>
+<script src="../../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../../assets/js/sidebarmenu.js"></script>
+<script src="../../../assets/js/app.min.js"></script>
+<script src="../../../assets/libs/simplebar/dist/simplebar.js"></script>
+<script src="../../../assets/js/auth.js"></script>
+<script src="../../../assets/js/admin_dashboard.js"></script>
 </body>
 </html>
-
